@@ -14,7 +14,8 @@ var cookieParser = require('cookie-parser');
 var client_id = 'd3bfb36d744c491db757c2819dac73eb'; // Your client id
 var client_secret = 'f27f1a4a55404be99e6beb153c54278b'; // Your client secret
 var redirect_uri = 'http://localhost:8888/callback'; // Your redirect uri
-//var redirect_uri = 'https://ancient-tor-6266.herokuapp.com/callback'; // Your redirect uri
+// var redirect_uri = 'https://ancient-tor-6266.herokuapp.com/callback'; // Your
+// redirect uri
 
 /**
  * Generates a random string containing numbers and letters
@@ -36,7 +37,7 @@ var generateRandomString = function(length) {
 var stateKey = 'spotify_auth_state';
 
 var app = express();
-
+app.set('port', (process.env.PORT || 8888));
 app.use(express.static(__dirname + '/public')).use(cookieParser());
 
 app
@@ -106,7 +107,7 @@ app.post('/addtoplaylist', function(req, res) {
 	request.post(authOptions, function(error, response, body) {
 		console.log(error);
 		console.log(response.statusCode);
-		//console.log(body);
+		// console.log(body);
 		if (!error && response.statusCode === 201) {
 
 			var access_token = body
@@ -229,5 +230,6 @@ app.get('/refresh_token', function(req, res) {
 	});
 });
 
-console.log('Listening on 8888');
-app.listen(8888);
+app.listen(app.get('port'), function() {
+	console.log('Node app is running on port', app.get('port'));
+});
