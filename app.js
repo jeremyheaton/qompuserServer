@@ -13,7 +13,8 @@ var cookieParser = require('cookie-parser');
 
 var client_id = 'd3bfb36d744c491db757c2819dac73eb'; // Your client id
 var client_secret = 'f27f1a4a55404be99e6beb153c54278b'; // Your client secret
-var redirect_uri = 'http://localhost:8888/callback'; // Your redirect uri
+//var redirect_uri = 'http://localhost:8888/callback'; // Your redirect uri
+var redirect_uri = 'https://ancient-tor-6266.herokuapp.com/callback'; // Your redirect uri
 
 /**
  * Generates a random string containing numbers and letters
