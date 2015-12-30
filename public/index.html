@@ -1,6 +1,8 @@
 <!doctype html>
 <html>
+
 	<head>
+		<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
 		<title>Example of the Authorization Code flow with Spotify</title>
 		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
 		<style type="text/css">
@@ -97,6 +99,21 @@
 		<script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
 		<script>
 			(function() {
+				var socket = io();
+				socket.on('message', function(data) {
+					console.log(data.message);
+					$.ajax({
+						method : "POST",
+						url : '/addtoplaylist?selectedplaylistid=' + selectedplaylistid + '&userid=' + userid + '&accesstoken=' + access_token + '&song=' + data.message,
+						success : function(response) {
+							console.log(response);
+						}
+					});
+				});
+
+				socket.on('connect', function() {
+					socket.emit('subscribe', 'host');
+				});
 
 				/**
 				 * Obtains parameters from the hash of the URL
@@ -267,5 +284,6 @@
 				}
 			})();
 		</script>
+
 </html>
 

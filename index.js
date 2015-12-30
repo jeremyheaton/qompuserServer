@@ -5,18 +5,43 @@
  * For more information, read
  * https://developer.spotify.com/web-api/authorization-guide/#authorization_code_flow
  */
-
-var express = require('express'); // Express web server framework
+var app = require('express')();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+// Express web server framework
+var express = require('express');
 var request = require('request'); // "Request" library
 var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
-
+app.set('port', (process.env.PORT || 3000));
+app.use(express.static(__dirname + '/public')).use(cookieParser());
 var client_id = 'd3bfb36d744c491db757c2819dac73eb'; // Your client id
 var client_secret = 'f27f1a4a55404be99e6beb153c54278b'; // Your client secret
-//var redirect_uri = 'http://localhost:8888/callback'; // Your redirect uri
+//var redirect_uri = 'http://localhost:3000/callback'; // Your redirect uri
  var redirect_uri = 'https://ancient-tor-6266.herokuapp.com/callback'; // Your
 // redirect uri
 
+app.get('/client', function(req, res){
+	  res.sendFile(__dirname + '/public/client.html');
+	});
+
+
+io.sockets.on('connection', function(socket){
+    socket.on('subscribe', function(room) { 
+        console.log('joining room', room);
+        socket.join(room); 
+    })
+
+    socket.on('unsubscribe', function(room) {  
+        console.log('leaving room', room);
+        socket.leave(room); 
+    })
+
+    socket.on('send', function(data) {
+        console.log('sending message');
+        io.sockets.in(data.room).emit('message', data);
+    });
+});
 /**
  * Generates a random string containing numbers and letters
  * 
@@ -35,10 +60,6 @@ var generateRandomString = function(length) {
 };
 
 var stateKey = 'spotify_auth_state';
-
-var app = express();
-app.set('port', (process.env.PORT || 8888));
-app.use(express.static(__dirname + '/public')).use(cookieParser());
 
 app
 		.get(
@@ -61,11 +82,9 @@ app
 									+ encodeURIComponent(redirect_uri)
 									+ '&state=' + state);
 
-					console.log()
 				});
 
 app.get('/getplaylists', function(req, res) {
-	console.log(req.param('userid'));
 	var authOptions = {
 		url : 'https://api.spotify.com/v1/users/' + req.param('userid')
 				+ '/playlists',
@@ -85,7 +104,6 @@ app.get('/getplaylists', function(req, res) {
 				array.push(playlist);
 			}
 			;
-			console.log(array);
 			res.send(array);
 		} else {
 			res.send('not valid');
@@ -105,8 +123,6 @@ app.post('/addtoplaylist', function(req, res) {
 	};
 
 	request.post(authOptions, function(error, response, body) {
-		console.log(error);
-		console.log(response.statusCode);
 		// console.log(body);
 		if (!error && response.statusCode === 201) {
 
@@ -127,12 +143,9 @@ app
 					// after checking the state parameter
 
 					var code = req.query.code || null;
-					console.log(req.query);
 					var state = req.query.state || null;
-					console.log(state);
 					var storedState = req.cookies ? req.cookies[stateKey]
 							: null;
-					console.log(storedState);
 					if (state === null || state !== storedState) {
 						res.redirect('/#' + querystring.stringify({
 							error : 'state_mismatch'
@@ -177,7 +190,6 @@ app
 												// access the Spotify Web API
 												request.get(options, function(
 														error, response, body) {
-													console.log(body);
 												});
 
 												// we can also pass the token to
@@ -230,6 +242,16 @@ app.get('/refresh_token', function(req, res) {
 	});
 });
 
-app.listen(app.get('port'), function() {
+
+app.post('/host/:room/', function(req, res) {
+    var room = 'host'
+        message = req.param('songid');
+
+    io.sockets.in(room).emit('message', { room: room, message: message });
+
+    res.end('message sent');
+});
+
+http.listen(app.get('port'), function() {
 	console.log('Node app is running on port', app.get('port'));
 });
