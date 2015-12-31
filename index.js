@@ -18,10 +18,10 @@ app.use(express.static(__dirname + '/public')).use(cookieParser());
 var client_id = 'd3bfb36d744c491db757c2819dac73eb'; // Your client id
 var client_secret = 'f27f1a4a55404be99e6beb153c54278b'; // Your client secret
 //var redirect_uri = 'http://localhost:3000/callback'; // Your redirect uri
- var redirect_uri = 'https://ancient-tor-6266.herokuapp.com/callback'; // Your
+var redirect_uri = 'https://ancient-tor-6266.herokuapp.com/callback'; // Your
 // redirect uri
 
-app.get('/client', function(req, res){
+app.get('/client/:room', function(req, res){
 	  res.sendFile(__dirname + '/public/client.html');
 	});
 
@@ -244,7 +244,9 @@ app.get('/refresh_token', function(req, res) {
 
 
 app.post('/host/:room/', function(req, res) {
-    var room = 'host'
+	console.log(req.param);
+	console.log(req.params);
+    var room = req.params.room
         message = req.param('songid');
 
     io.sockets.in(room).emit('message', { room: room, message: message });
