@@ -19,7 +19,7 @@
 	</head>
 
 	<body>
-		
+
 		<div class="container">
 			<div id="login">
 				<h1>This is an example of the Authorization Code flow</h1>
@@ -291,10 +291,8 @@
 							});
 						});
 					}, false);
-
-					var reloadtoken = function() {
+					function reloadtoken() {
 						$.ajax({
-
 							url : '/refresh_token',
 							data : {
 								'refresh_token' : refresh_token
@@ -307,15 +305,12 @@
 							});
 						});
 					};
-					window.onload = function() {
-						reloadtoken();
-						//Make sure the function fires as soon as the page is loaded
-						setTimeout(reloadtoken(), 600000);
-						//Then set it to run again after ten minutes
-					}
+
+					setInterval(reloadtoken, 300000);
+
 				}
+
 			})();
 		</script>
 
 </html>
-
