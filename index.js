@@ -10,7 +10,7 @@ var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var redis = require('socket.io-redis');
-io.adapter(redis({ host: (process.env.REDIS_URL || 'localhost'), port: (process.env.REDIS_PORT || 6379) }));
+io.adapter(redis({ host: (process.env.REDIS_URL || 'ec2-54-235-147-98.compute-1.amazonaws.com'), port: (process.env.REDIS_PORT || 8309),  auth_pass: "p76ntnifvt971g3nfh5ii7ftoup"  }));
 // Express web server framework
 var express = require('express');
 var request = require('request'); // "Request" library
