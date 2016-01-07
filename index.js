@@ -11,8 +11,7 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var redis = require('socket.io-redis');
 
-
-io.adapter(redis(process.env.REDIS_URL));
+io.adapter(redis({ host: ('ec2-54-235-147-98.compute-1.amazonaws.com' || 'ec2-54-235-147-98.compute-1.amazonaws.com'), port: (8309 || 8309),  auth_pass: "p76ntnifvt971g3nfh5ii7ftoup"  }));
 // Express web server framework
 var express = require('express');
 var request = require('request'); // "Request" library
@@ -22,9 +21,7 @@ app.set('port', (process.env.PORT || 3000));
 app.use(express.static(__dirname + '/public')).use(cookieParser());
 var client_id = 'd3bfb36d744c491db757c2819dac73eb'; // Your client id
 var client_secret = 'f27f1a4a55404be99e6beb153c54278b'; // Your client secret
-var redirect_uri = (process.env.REDIRECT_URI || 'http://localhost:3000/callback'); // Your
-																					// redirect
-																					// uri
+var redirect_uri = (process.env.REDIRECT_URI || 'http://localhost:3000/callback'); // Your redirect uri
 // var redirect_uri = 'https://ancient-tor-6266.herokuapp.com/callback'; // Your
 // redirect uri
 
