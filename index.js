@@ -10,9 +10,9 @@ var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var redis = require('socket.io-redis');
-
-io.adapter(redis({ host: ('ec2-54-235-147-98.compute-1.amazonaws.com' || 'ec2-54-235-147-98.compute-1.amazonaws.com'), port: (8309 || 8309),  auth_pass: "p76ntnifvt971g3nfh5ii7ftoup"  }));
-// Express web server framework
+var pub = redis(8309, "ec2-54-235-147-98.compute-1.amazonaws.com", { auth_pass: "p76ntnifvt971g3nfh5ii7ftoup" });
+var sub = redis(8309, "ec2-54-235-147-98.compute-1.amazonaws.com", { return_buffers: true, auth_pass: "p76ntnifvt971g3nfh5ii7ftoup" });
+io.adapter(adapter({ pubClient: pub, subClient: sub }));
 var express = require('express');
 var request = require('request'); // "Request" library
 var querystring = require('querystring');
