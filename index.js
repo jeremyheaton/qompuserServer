@@ -11,6 +11,7 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var redis = require('socket.io-redis');
 
+
 io.adapter(redis(process.env.REDIS_URL));
 // Express web server framework
 var express = require('express');
