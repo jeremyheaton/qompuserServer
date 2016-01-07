@@ -6,8 +6,11 @@
  * https://developer.spotify.com/web-api/authorization-guide/#authorization_code_flow
  */
 var app = require('express')();
+
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var redis = require('socket.io-redis');
+io.adapter(redis({ host: (process.env.REDIS_URL || 'localhost'), port: (process.env.REDIS_PORT || 6379) }));
 // Express web server framework
 var express = require('express');
 var request = require('request'); // "Request" library
@@ -17,8 +20,8 @@ app.set('port', (process.env.PORT || 3000));
 app.use(express.static(__dirname + '/public')).use(cookieParser());
 var client_id = 'd3bfb36d744c491db757c2819dac73eb'; // Your client id
 var client_secret = 'f27f1a4a55404be99e6beb153c54278b'; // Your client secret
-//var redirect_uri = 'http://localhost:3000/callback'; // Your redirect uri
-var redirect_uri = 'https://ancient-tor-6266.herokuapp.com/callback'; // Your
+var redirect_uri = (process.env.REDIRECT_URI || 'http://localhost:3000/callback'); // Your redirect uri
+// var redirect_uri = 'https://ancient-tor-6266.herokuapp.com/callback'; // Your
 // redirect uri
 
 app.get('/client/:room', function(req, res){
@@ -32,13 +35,9 @@ io.sockets.on('connection', function(socket){
         socket.join(room); 
     })
 
-    socket.on('unsubscribe', function(room) {  
-        console.log('leaving room', room);
-        socket.leave(room); 
-    })
-
     socket.on('send', function(data) {
         console.log('sending message');
+      
         io.sockets.in(data.room).emit('message', data);
     });
 });
@@ -61,27 +60,20 @@ var generateRandomString = function(length) {
 
 var stateKey = 'spotify_auth_state';
 
-app
-		.get(
-				'/login',
-				function(req, res) {
-
-					var state = generateRandomString(16);
-					res.cookie(stateKey, state);
-
+app.get('/login', function(req, res) {
+	var state = generateRandomString(16);
+	res.cookie(stateKey, state);
 					// your application requests authorization
-					var scopes = 'user-read-email playlist-read-private user-read-private playlist-modify-public';
-					res
-							.redirect('https://accounts.spotify.com/authorize'
-									+ '?response_type=code'
-									+ '&client_id='
-									+ client_id
-									+ (scopes ? '&scope='
-											+ 'playlist-read-private%20playlist-modify%20playlist-modify-private'
-											: '') + '&redirect_uri='
-									+ encodeURIComponent(redirect_uri)
-									+ '&state=' + state);
-
+	var scopes = 'user-read-email playlist-read-private user-read-private playlist-modify-public';
+	res.redirect('https://accounts.spotify.com/authorize'
+				+ '?response_type=code'
+				+ '&client_id='
+				+ client_id
+				+ (scopes ? '&scope='
+					+ 'playlist-read-private%20playlist-modify%20playlist-modify-private' : '')
+				+ '&redirect_uri='
+				+ encodeURIComponent(redirect_uri)
+				+ '&state=' + state);
 				});
 
 app.get('/getplaylists', function(req, res) {
@@ -248,9 +240,9 @@ app.post('/host/:room/', function(req, res) {
 	console.log(req.params);
     var room = req.params.room
         message = req.param('songid');
-
+    console.log(room + ", " + message);
     io.sockets.in(room).emit('message', { room: room, message: message });
-
+   
     res.end('message sent');
 });
 
