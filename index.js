@@ -9,7 +9,8 @@ var app = require('express')();
 
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-var redis = require('socket.io-redis');
+var redis = require('redis').createClient;
+var adapter = require('socket.io-redis');
 var pub = redis(8309, "ec2-54-235-147-98.compute-1.amazonaws.com", { auth_pass: "p76ntnifvt971g3nfh5ii7ftoup" });
 var sub = redis(8309, "ec2-54-235-147-98.compute-1.amazonaws.com", { return_buffers: true, auth_pass: "p76ntnifvt971g3nfh5ii7ftoup" });
 io.adapter(adapter({ pubClient: pub, subClient: sub }));
