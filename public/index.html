@@ -157,7 +157,7 @@
 
 								var socket = io();
 								socket.on('message', function(data) {
-									console.log(data.message);
+									console.log(data);
 									$.ajax({
 										method : "POST",
 										url : '/addtoplaylist?selectedplaylistid=' + selectedplaylistid + '&userid=' + userid + '&accesstoken=' + access_token + '&song=' + data.message,

@@ -14,15 +14,16 @@ var adapter = require('socket.io-redis');
 var pub = redis(8309, "ec2-54-235-147-98.compute-1.amazonaws.com", { auth_pass: "p76ntnifvt971g3nfh5ii7ftoup" });
 var sub = redis(8309, "ec2-54-235-147-98.compute-1.amazonaws.com", { return_buffers: true, auth_pass: "p76ntnifvt971g3nfh5ii7ftoup" });
 io.adapter(adapter({ pubClient: pub, subClient: sub }));
+
 var express = require('express');
 var request = require('request'); // "Request" library
 var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
-app.set('port', (process.env.PORT || 3000));
+app.set('port', (process.env.PORT || 8888));
 app.use(express.static(__dirname + '/public')).use(cookieParser());
 var client_id = 'd3bfb36d744c491db757c2819dac73eb'; // Your client id
 var client_secret = 'f27f1a4a55404be99e6beb153c54278b'; // Your client secret
-var redirect_uri = (process.env.REDIRECT_URI || 'http://localhost:3000/callback'); // Your redirect uri
+var redirect_uri = (process.env.REDIRECT_URI || 'http://localhost:8888/callback'); // Your redirect uri
 // var redirect_uri = 'https://ancient-tor-6266.herokuapp.com/callback'; // Your
 // redirect uri
 
@@ -41,7 +42,9 @@ io.sockets.on('connection', function(socket){
         console.log('sending message');
       
         io.sockets.in(data.room).emit('message', data);
+        console.log(data);
     });
+    
 });
 /**
  * Generates a random string containing numbers and letters
@@ -121,8 +124,8 @@ app.post('/addtoplaylist', function(req, res) {
 		if (!error && response.statusCode === 201) {
 
 			var access_token = body
-
-			res.send();
+			console.log(response.statusCode);
+			res.sendStatus(response.statusCode);
 		} else {
 			res.send('not valid');
 		}
@@ -238,12 +241,12 @@ app.get('/refresh_token', function(req, res) {
 
 
 app.post('/host/:room/', function(req, res) {
-	console.log(req.param);
-	console.log(req.params);
+	
     var room = req.params.room
-        message = req.param('songid');
+        message = req.param('songid')
+        song = req.param('songname');
     console.log(room + ", " + message);
-    io.sockets.in(room).emit('message', { room: room, message: message });
+    io.sockets.in(room).emit('message', { room: room, message: message, song: song });
    
     res.end('message sent');
 });

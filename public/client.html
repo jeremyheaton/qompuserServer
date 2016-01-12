@@ -23,7 +23,7 @@
 		<script id="results-template" type="text/x-handlebars-template">
 			{{#each this.tracks.items}}
 			<div id={{id}} >{{name}} :  {{artists.0.name}}
-			<button class="btn btn-default song" songid={{id}} id="add-to-lists">			add to playlist
+			<button class="btn btn-default song" songid={{id}} songname={{name}} id="add-to-lists">			add to playlist
 			</button>
 			</div>
 			{{/each}}
@@ -85,7 +85,7 @@
 						classname[i].addEventListener('click', function() {
 							$.ajax({
 								method : "POST",
-								url : '/host/'+ window.location.href .replace(/.*\//, '') + '?songid=' + this.getAttribute('songid'),
+								url : '/host/'+ window.location.href .replace(/.*\//, '') + '?songid=' + this.getAttribute('songid') + '&song=' + this.getAttribute('songname'),
 								success : function(response) {
 									console.log(response);
 
