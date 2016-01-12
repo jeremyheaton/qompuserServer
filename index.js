@@ -244,7 +244,7 @@ app.post('/host/:room/', function(req, res) {
 	
     var room = req.params.room
         message = req.param('songid')
-        song = req.param('songname');
+        song = req.param('song');
     console.log(room + ", " + message);
     io.sockets.in(room).emit('message', { room: room, message: message, song: song });
    
