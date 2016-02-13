@@ -23,7 +23,9 @@ app.set('port', (process.env.PORT || 8888));
 app.use(express.static(__dirname + '/public')).use(cookieParser());
 var client_id = 'd3bfb36d744c491db757c2819dac73eb'; // Your client id
 var client_secret = 'f27f1a4a55404be99e6beb153c54278b'; // Your client secret
-var redirect_uri = (process.env.REDIRECT_URI || 'http://localhost:8888/callback'); // Your redirect uri
+var redirect_uri = (process.env.REDIRECT_URI || 'http://localhost:8888/callback'); // Your
+																					// redirect
+																					// uri
 // var redirect_uri = 'https://ancient-tor-6266.herokuapp.com/callback'; // Your
 // redirect uri
 
@@ -40,11 +42,15 @@ io.sockets.on('connection', function(socket){
 
     socket.on('send', function(data) {
         console.log('sending message');
-      
-        io.sockets.in(data.room).emit('message', data);
-        console.log(data);
-    });
+        socket.broadcast.emit('new message', {
+            username: socket.username,
+            message: data
+          });
     
+});
+    socket.on('music'), function(data){
+    	console.log(data);
+    }
 });
 /**
  * Generates a random string containing numbers and letters
@@ -244,9 +250,11 @@ app.post('/host/:room/', function(req, res) {
 	
     var room = req.params.room
         message = req.param('songid')
-        song = req.param('song');
-    console.log(room + ", " + message);
-    io.sockets.in(room).emit('message', { room: room, message: message, song: song, source: "spotify" });
+        song = req.param('song')
+    	source = req.param('source')
+    	
+    console.log(room + ", " + message + ", " + source);
+    io.sockets.in(room).emit('message', { room: room, message: message, song: song, source: source });
    
     res.end('message sent');
 });
