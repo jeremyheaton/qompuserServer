@@ -11,8 +11,9 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var redis = require('redis').createClient;
 var adapter = require('socket.io-redis');
-var pub = redis(8309, "ec2-54-235-147-98.compute-1.amazonaws.com", { auth_pass: "p76ntnifvt971g3nfh5ii7ftoup" });
-var sub = redis(8309, "ec2-54-235-147-98.compute-1.amazonaws.com", { return_buffers: true, auth_pass: "p76ntnifvt971g3nfh5ii7ftoup" });
+
+var pub = redis(8309, "ec2-54-227-252-69.compute-1.amazonaws.com", { auth_pass: "p76ntnifvt971g3nfh5ii7ftoup" });
+var sub = redis(8309, "ec2-54-227-252-69.compute-1.amazonaws.com", { return_buffers: true, auth_pass: "p76ntnifvt971g3nfh5ii7ftoup" });
 io.adapter(adapter({ pubClient: pub, subClient: sub }));
 
 var express = require('express');
@@ -38,8 +39,9 @@ io.sockets.on('connection', function(socket){
     socket.on('subscribe', function(room) { 
         console.log('joining room', room);
         socket.join(room); 
-    })
-
+    });
+    
+  
     socket.on('send', function(data) {
         console.log('sending message');
         socket.broadcast.emit('new message', {
@@ -48,9 +50,7 @@ io.sockets.on('connection', function(socket){
           });
     
 });
-    socket.on('music'), function(data){
-    	console.log(data);
-    }
+    
 });
 /**
  * Generates a random string containing numbers and letters
