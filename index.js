@@ -251,10 +251,11 @@ app.post('/host/:room/', function(req, res) {
     var room = req.params.room
         message = req.param('songid')
         song = req.param('song')
-    	source = req.param('source')
+        artist = req.param('artist');
+    
     	
-    console.log(room + ", " + message + ", " + source);
-    io.sockets.in(room).emit('message', { room: room, message: message, song: song, source: source });
+  
+    io.sockets.in(room).emit('message', { room: room, message: message, song: song, artist: artist });
    
     res.end('message sent');
 });

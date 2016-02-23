@@ -10,26 +10,6 @@
 	</head>
 
 	<body>
-
-		<div id="container">
-			<h1>Search Results</h1>
-			<form id="youtube-search-form">
-				<input type="text" id="youtubequery" value="" class="form-control" placeholder="Type an Artist Name"/>
-				<input type="submit" id="search" class="btn btn-primary" value="Search" />
-			</form>
-			<div id="youtubeResults"></div>
-			<script id="youtube-results-template" type="text/x-handlebars-template">
-				{{#each this}}
-				<div id={{id.videoid}} >{{snippet.title}}
-				<button class="btn btn-default youtubesong" source="youtube" songid={{id.videoId}} songname="{{snippet.title}}">			add to playlist
-				</button>
-				</div>
-				{{/each}}
-			</script>
-
-		</div>
-		<script></script>
-
 		<h1>Search for a song by artist, album, or name</h1>
 		<p>
 			Type an artist name and click on "Search". Then, click on any album from the results to play 30 seconds of its first track.
@@ -44,7 +24,7 @@
 		<script id="results-template" type="text/x-handlebars-template">
 			{{#each this.tracks.items}}
 			<div id={{id}} >{{name}} :  {{artists.0.name}}
-			<button class="btn btn-default song" source="spotify" songid={{id}} songname="{{name}} - {{artists.0.name}}" id="add-to-lists">			add to playlist
+			<button class="btn btn-default song" source="spotify" songid={{id}} songname="{{name}}" songartist="{{artists.0.name}}" id="add-to-lists">			add to playlist
 			</button>
 			</div>
 			{{/each}}
@@ -74,30 +54,10 @@
 
 				var playlistSource = document.getElementById('playlist-template').innerHTML, playlistTemplate = Handlebars.compile(playlistSource), playlistPlaceholder = document.getElementById('user-playlist');
 
-				var youtubeTemplate = document.getElementById('youtube-results-template').innerHTML, youtubestemplate = Handlebars.compile(youtubeTemplate), youtuberesultsPlaceholder = document.getElementById('youtubeResults');
+			
+				
 
-				function keyWordsearch(query) {
-					gapi.client.setApiKey('AIzaSyBsPCAzn5_THSIKA5lMaRh33EYFfLHW6iA');
-					gapi.client.load('youtube', 'v3', function() {
-						makeRequest(query);
-					});
-				}
-
-				function makeRequest(query) {
-
-					var request = gapi.client.youtube.search.list({
-						q : query,
-						part : 'snippet',
-						maxResults : 10
-					});
-					request.execute(function(response) {
-						$('#results').empty()
-						console.log(response.items[0]);
-						youtuberesultsPlaceholder.innerHTML = youtubestemplate(response.result.items);
-						youtubesonglistener();
-
-					});
-				}
+				
 
 				var userid
 
@@ -116,30 +76,13 @@
 						}
 					});
 				};
-				document.getElementById('youtube-search-form').addEventListener('submit', function(e) {
-					e.preventDefault();
-					keyWordsearch(document.getElementById('youtubequery').value);
-				}, false);
+			
 				document.getElementById('search-form').addEventListener('submit', function(e) {
 					e.preventDefault();
 					searchAlbums(document.getElementById('query').value);
 				}, false);
 
-				function youtubesonglistener() {
-					var classname = document.getElementsByClassName("youtubesong");
-					for (var i = 0; i < classname.length; i++) {
-						classname[i].addEventListener('click', function() {
-							$.ajax({
-								method : "POST",
-								url : '/host/' + window.location.href.replace(/.*\//, '') + '?songid=' + this.getAttribute('songid') + '&song=' + this.getAttribute('songname') + '&source=' + this.getAttribute('source'),
-								success : function(response) {
-									console.log(response);
-
-								}
-							});
-						});
-					};
-				};
+			
 
 				function songlistener() {
 					var classname = document.getElementsByClassName("song");
@@ -147,7 +90,7 @@
 						classname[i].addEventListener('click', function() {
 							$.ajax({
 								method : "POST",
-								url : '/host/' + window.location.href.replace(/.*\//, '') + '?songid=' + this.getAttribute('songid') + '&song=' + this.getAttribute('songname') + '&source=' + this.getAttribute('source'),
+								url : '/host/' + window.location.href.replace(/.*\//, '') + '?songid=' + this.getAttribute('songid') + '&song=' + this.getAttribute('songname') + '&artist=' + this.getAttribute('songartist'),
 								success : function(response) {
 									console.log(response);
 
