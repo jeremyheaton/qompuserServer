@@ -12,8 +12,8 @@ var io = require('socket.io')(http);
 var redis = require('redis').createClient;
 var adapter = require('socket.io-redis');
 
-var pub = redis(11649, "ec2-107-22-213-247.compute-1.amazonaws.com", { auth_pass: "p3h8j5862eeou4es5gs6crg56jv" });
-var sub = redis(11649, "ec2-107-22-213-247.compute-1.amazonaws.com", { return_buffers: true, auth_pass: "p3h8j5862eeou4es5gs6crg56jv" });
+var pub = redis(8529, "ec2-54-227-252-69.compute-1.amazonaws.com", { auth_pass: "p76ntnifvt971g3nfh5ii7ftoup" });
+var sub = redis(8529, "ec2-54-227-252-69.compute-1.amazonaws.com", { return_buffers: true, auth_pass: "p76ntnifvt971g3nfh5ii7ftoup" });
 io.adapter(adapter({ pubClient: pub, subClient: sub }));
 
 var express = require('express');
