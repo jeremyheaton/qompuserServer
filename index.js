@@ -39,9 +39,15 @@ io.sockets.on('connection', function(socket){
     socket.on('subscribe', function(room) { 
         console.log('joining room', room);
         socket.join(room); 
+        io.sockets.in(room).emit('fetchplaylist');
+        
+     
     });
     
-  
+  socket.on('sendplaylist', function(data){
+	  io.sockets.in(room).emit('playlist');
+	  
+  });
     socket.on('send', function(data) {
         console.log('sending message');
         socket.broadcast.emit('new message', {
@@ -252,9 +258,8 @@ app.post('/host/:room/', function(req, res) {
         message = req.param('songid')
         song = req.param('song')
         artist = req.param('artist');
-    
-    	
-  
+    console.log(room);
+    console.log(song + " " + artist);
     io.sockets.in(room).emit('message', { room: room, message: message, song: song, artist: artist });
    
     res.end('message sent');

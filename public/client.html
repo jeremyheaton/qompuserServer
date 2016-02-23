@@ -107,9 +107,13 @@
 			var socket = io();
 
 			socket.on('connect', function() {
-				socket.emit('subscribe', 'user');
-				console.log("subscribed to user");
+				socket.emit('subscribe', window.location.href.replace(/.*\//, ''));
+				console.log("subscribed to " + window.location.href.replace(/.*\//, '') );
 			});
+			socket.on('playlist', function(data){
+				console.log(data)
+			})
+			
 		</script>
 </html>
 
