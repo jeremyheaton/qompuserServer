@@ -44,10 +44,11 @@ io.sockets.on('connection', function(socket){
      
     });
     
-  socket.on('sendplaylist', function(data){
-	  io.sockets.in(room).emit('playlist');
-	  
-  });
+    socket.on('sendplaylist', function(data){
+  	 io.sockets.in(data.room).emit('playlist', data);
+  	  console.log(data);
+  	  
+    });
     socket.on('send', function(data) {
         console.log('sending message');
         socket.broadcast.emit('new message', {
