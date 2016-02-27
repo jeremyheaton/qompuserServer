@@ -50,7 +50,11 @@
 
 		<script>
 			(function() {
-				var voted = JSON.parse(getCookie("votedsongs"));
+				var cookie = getCookie("votedsongs");
+				if(cookie == ""){
+					document.cookie = "votedsongs=[]";
+				}
+				var voted = JSON.parse(cookie);
 
 				var playlist;
 				var socket = io();
