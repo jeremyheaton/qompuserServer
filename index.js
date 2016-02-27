@@ -1,12 +1,5 @@
-/**
- * This is an example of a basic node.js script that performs the Authorization
- * Code oAuth2 flow to authenticate against the Spotify Accounts.
- * 
- * For more information, read
- * https://developer.spotify.com/web-api/authorization-guide/#authorization_code_flow
- */
-var app = require('express')();
 
+var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var redis = require('redis').createClient;
@@ -19,9 +12,8 @@ io.adapter(adapter({ pubClient: pub, subClient: sub }));
 var express = require('express');
 var request = require('request'); // "Request" library
 var querystring = require('querystring');
-var cookieParser = require('cookie-parser');
 app.set('port', (process.env.PORT || 8888));
-app.use(express.static(__dirname + '/public')).use(cookieParser());
+app.use(express.static('public'));
 var client_id = 'd3bfb36d744c491db757c2819dac73eb'; // Your client id
 var client_secret = 'f27f1a4a55404be99e6beb153c54278b'; // Your client secret
 var redirect_uri = (process.env.REDIRECT_URI || 'http://localhost:8888/callback'); // Your
@@ -31,7 +23,9 @@ var redirect_uri = (process.env.REDIRECT_URI || 'http://localhost:8888/callback'
 // redirect uri
 
 app.get('/client/:room', function(req, res){
-	  res.sendFile(__dirname + '/public/client.html');
+	res.sendFile('public/client.html', {
+		root : __dirname
+	})
 	});
 
 
@@ -47,8 +41,18 @@ io.sockets.on('connection', function(socket){
     socket.on('sendplaylist', function(data){
   	 io.sockets.in(data.room).emit('playlist', data);
   	  console.log(data);
-  	  
     });
+    
+    socket.on('like', function(data){
+     	 io.sockets.in("1217495691").emit('like', data);
+     	//  console.log(data);
+       });
+    
+    socket.on('hate', function(data){
+    	 io.sockets.in("1217495691").emit('hate', data);
+    //	socket.emit('hate', data);
+    	  console.log(data);
+      });
     socket.on('send', function(data) {
         console.log('sending message');
         socket.broadcast.emit('new message', {

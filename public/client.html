@@ -4,6 +4,7 @@
 	<head>
 
 		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+		<link rel="stylesheet" href="../css/styles.css">
 		<script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.1/handlebars.min.js"></script>
 		<script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
 		<script src="https://apis.google.com/js/client.js?onload=googleApiClientReady"></script>
@@ -14,14 +15,17 @@
 		<p>
 			Type an artist name and click on "Search". Then, click on any album from the results to play 30 seconds of its first track.
 		</p>
-		<form id="search-form">
-			<input type="text" id="query" value="" class="form-control" placeholder="Type an Artist Name"/>
-			<input type="submit" id="search" class="btn btn-primary" value="Search" />
-		</form>
-		<div id="results"></div>
-		
-		<div id="playlist"></div>
-		
+		<div class="row">
+			<div class="col-md-4" id="searchcontainer">
+				<form id="search-form">
+					<input type="text" id="query" value="" class="form-control" placeholder="Type an Artist Name"/>
+					<input type="submit" id="search" class="btn btn-primary" value="Search" />
+				</form>
+				<div id="results"></div>
+			</div>
+
+			<div class="col-md-4" id="playlist"></div>
+		</div>
 		<script id="results-template" type="text/x-handlebars-template">
 			{{#each this.tracks.items}}
 			<div id={{id}} >{{name}} :  {{artists.0.name}}
@@ -31,22 +35,57 @@
 			{{/each}}
 		</script>
 		<script id="playlist-template" type="text/x-handlebars-template">
+
 			{{#each this.songs}}
 			<div class="row">
-			<div id={{id}} >{{artistname}} :  {{songname.0.name}}
-			<p class="playlistnames" id={{playlistid}}>names: {{playlistname}}</p>
-
+			<div id={{id}} >{{artistname}} : {{songname}}
+			<span class="label label-default">{{count}}</span>
+			</button>
+			</div>
 			</div>
 			{{/each}}
+
 		</script>
+		<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
 
 		<script>
 			(function() {
+				var voted = JSON.parse(getCookie("votedsongs"));
+			
+				var playlist;
+				var socket = io();
+
+				socket.on('connect', function() {
+					socket.emit('subscribe', window.location.href.replace(/.*\//, ''));
+					console.log("subscribed to " + window.location.href.replace(/.*\//, ''));
+				});
+				socket.on('playlist', function(data) {
+					playlistPlaceholder.innerHTML = playlistTemplate(data);
+					playlist = data.songs;
+					cookieFixer();
+					playlistlistener();
+
+				});
 
 				/**
 				 * Obtains parameters from the hash of the URL
 				 * @return Object
 				 */
+				function cookieFixer() {
+					var songids = [];
+					for (var i = 0; i < playlist.length; i++) {
+						songids.push(playlist[i].id);
+					}
+					for (var j = 0; j < voted.length; j++) {
+						if (songids.indexOf(voted[j]) >= 0) {
+
+						} else {
+							voted.splice(j, 1);
+						}
+					}
+
+					document.cookie = "votedsongs=" + JSON.stringify(voted);
+				}
 
 				var selectedplaylistid;
 				var selectedplaylistname;
@@ -54,11 +93,6 @@
 				var templateSource = document.getElementById('results-template').innerHTML, trackstemplate = Handlebars.compile(templateSource), resultsPlaceholder = document.getElementById('results');
 
 				var playlistSource = document.getElementById('playlist-template').innerHTML, playlistTemplate = Handlebars.compile(playlistSource), playlistPlaceholder = document.getElementById('playlist');
-
-			
-				
-
-				
 
 				var userid
 
@@ -77,45 +111,77 @@
 						}
 					});
 				};
-			
+
 				document.getElementById('search-form').addEventListener('submit', function(e) {
 					e.preventDefault();
 					searchAlbums(document.getElementById('query').value);
 				}, false);
 
-			
+				function playlistlistener() {
+
+					$('.vote').click(function() {
+						if ($(this).hasClass('voted')) {
+
+							socket.emit('hate', this.getAttribute('songid'));
+							$(this).toggleClass('voted');
+						} else {
+							$(this).toggleClass('voted');
+							socket.emit('like', this.getAttribute('songid'));
+						}
+
+					});
+
+				};
+
+				function checkplaylist(songid) {
+					for (var i = 0; i < playlist.length; i++) {
+						if (playlist[i].id == songid) {
+							return true;
+							break;
+						}
+					}
+				}
 
 				function songlistener() {
 					var classname = document.getElementsByClassName("song");
 					for (var i = 0; i < classname.length; i++) {
 						classname[i].addEventListener('click', function() {
-							$.ajax({
-								method : "POST",
-								url : '/host/' + window.location.href.replace(/.*\//, '') + '?songid=' + this.getAttribute('songid') + '&song=' + this.getAttribute('songname') + '&artist=' + this.getAttribute('songartist'),
-								success : function(response) {
-									console.log(response);
+							if (voted.indexOf(this.getAttribute('songid')) >= 0) {
 
-								}
-							});
+							} else {
+
+								voted.push(this.getAttribute('songid'))
+								document.cookie = "votedsongs=" + JSON.stringify(voted);
+								$.ajax({
+									method : "POST",
+									url : '/host/' + window.location.href.replace(/.*\//, '') + '?songid=' + this.getAttribute('songid') + '&song=' + this.getAttribute('songname') + '&artist=' + this.getAttribute('songartist'),
+									success : function(response) {
+										console.log(response);
+
+									}
+								});
+
+							}
 						});
 					};
 				};
+
+				function getCookie(cname) {
+					var name = cname + "=";
+					var ca = document.cookie.split(';');
+					for (var i = 0; i < ca.length; i++) {
+						var c = ca[i];
+						while (c.charAt(0) == ' ')
+						c = c.substring(1);
+						if (c.indexOf(name) == 0)
+							return c.substring(name.length, c.length);
+					}
+					return "";
+				}
+
 			}
 			)();
-		</script>
-		<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
-		<script>
-			var socket = io();
 
-			socket.on('connect', function() {
-				socket.emit('subscribe', window.location.href.replace(/.*\//, ''));
-				console.log("subscribed to " + window.location.href.replace(/.*\//, '') );
-			});
-			socket.on('playlist', function(data){
-				playlistPlaceholder.innerHTML = playlistTemplate(data);
-				console.log(data)
-			})
-			
 		</script>
 </html>
 
