@@ -57,7 +57,7 @@
 				var voted = JSON.parse(cookie);
 
 				var playlist;
-				var socket = io();
+				var socket = io("https://localhost:8888/");
 
 				socket.on('connect', function() {
 					socket.emit('subscribe', window.location.href.replace(/.*\//, ''));
