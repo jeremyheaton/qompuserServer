@@ -57,7 +57,7 @@
 				var voted = JSON.parse(cookie);
 
 				var playlist;
-				var socket = io();
+				var socket = io("https://ancient-tor-6266.herokuapp.com/");
 
 				socket.on('connect', function() {
 					socket.emit('subscribe', window.location.href.replace(/.*\//, ''));
