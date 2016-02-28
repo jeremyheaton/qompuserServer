@@ -53,6 +53,7 @@
 				var cookie = getCookie("votedsongs");
 				if(cookie == ""){
 					document.cookie = "votedsongs=[]";
+					cookie = getCookie("votedsongs");
 				}
 				var voted = JSON.parse(cookie);
 
