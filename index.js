@@ -1,14 +1,11 @@
-
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var redis = require('redis').createClient;
 var adapter = require('socket.io-redis');
-
 var pub = redis(8529, "ec2-54-227-252-69.compute-1.amazonaws.com", { auth_pass: "p76ntnifvt971g3nfh5ii7ftoup" });
 var sub = redis(8529, "ec2-54-227-252-69.compute-1.amazonaws.com", { return_buffers: true, auth_pass: "p76ntnifvt971g3nfh5ii7ftoup" });
 io.adapter(adapter({ pubClient: pub, subClient: sub }));
-
 var express = require('express');
 var request = require('request'); // "Request" library
 var querystring = require('querystring');
@@ -34,7 +31,6 @@ io.sockets.on('connection', function(socket){
         console.log('joining room', room);
         socket.join(room); 
         io.sockets.in(room).emit('fetchplaylist');
-        
      
     });
     
@@ -43,16 +39,16 @@ io.sockets.on('connection', function(socket){
   	  console.log(data);
     });
     
-    socket.on('like', function(data){
-     	 io.sockets.in("1217495691").emit('like', data);
-     	//  console.log(data);
-       });
-    
-    socket.on('hate', function(data){
-    	 io.sockets.in("1217495691").emit('hate', data);
-    //	socket.emit('hate', data);
-    	  console.log(data);
-      });
+//    socket.on('like', function(data){
+//     	 io.sockets.in("1217495691").emit('like', data);
+//     	//  console.log(data);
+//       });
+//    
+//    socket.on('hate', function(data){
+//    	 io.sockets.in("1217495691").emit('hate', data);
+//    //	socket.emit('hate', data);
+//    	  console.log(data);
+//      });
     socket.on('send', function(data) {
         console.log('sending message');
         socket.broadcast.emit('new message', {
