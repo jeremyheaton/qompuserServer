@@ -38,9 +38,8 @@ io.sockets.on('connection', function(socket){
   	 io.sockets.in(data.room).emit('playlist', data);
   	  console.log(data);
     });
-);
-    
 });
+  
 /**
  * Generates a random string containing numbers and letters
  * 
