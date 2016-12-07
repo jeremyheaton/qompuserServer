@@ -3,8 +3,8 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var redis = require('redis').createClient;
 var adapter = require('socket.io-redis');
-var pub = redis(8529, "ec2-54-227-252-69.compute-1.amazonaws.com", { auth_pass: "pcnht69peu3a041uv99dqd4qdti" });
-var sub = redis(8529, "ec2-54-227-252-69.compute-1.amazonaws.com", { return_buffers: true, auth_pass: "pcnht69peu3a041uv99dqd4qdti" });
+var pub = redis(7779, "ec2-54-225-248-13.compute-1.amazonaws.com", { auth_pass: "pcnht69peu3a041uv99dqd4qdti" });
+var sub = redis(7779, "ec2-54-225-248-13.compute-1.amazonaws.com", { return_buffers: true, auth_pass: "pcnht69peu3a041uv99dqd4qdti" });
 io.adapter(adapter({ pubClient: pub, subClient: sub }));
 var express = require('express');
 var request = require('request'); // "Request" library
@@ -15,7 +15,7 @@ var client_id = 'd3bfb36d744c491db757c2819dac73eb'; // Your client id
 var client_secret = 'f27f1a4a55404be99e6beb153c54278b'; // Your client secret
 var redirect_uri = (process.env.REDIRECT_URI || 'http://localhost:8888/callback'); // Your
 																					// redirect
-																					// uri
+							redis://h:pcnht69peu3a041uv99dqd4qdti@ec2-54-225-248-13.compute-1.amazonaws.com:													// uri
 // var redirect_uri = 'https://ancient-tor-6266.herokuapp.com/callback'; // Your
 // redirect uri
 
