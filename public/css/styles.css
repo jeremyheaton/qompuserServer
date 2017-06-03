@@ -1,3 +1,15 @@
-.voted {
-	background-color: #73AD21;
+#searchcontainer {
+        width: 0;
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: white;
+        overflow-x: hidden;
+        transition: 0.5s;
+        padding-top: 60px;
+}
+
+.song {
+width: 100%;
 }
