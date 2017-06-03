@@ -51,6 +51,7 @@
 		<script>
 			(function() {
 				var cookie = getCookie("votedsongs");
+				var authCode;
 				if(cookie == ""){
 					document.cookie = "votedsongs=[]";
 					cookie = getCookie("votedsongs");
@@ -62,8 +63,12 @@
 
 				socket.on('connect', function() {
 					socket.emit('subscribe', window.location.href.replace(/.*\//, ''));
-					console.log("subscribed to " + window.location.href.replace(/.*\//, ''));
 				});
+
+				socket.on('token', function(data) {
+				authCode = data;
+				});
+
 				socket.on('playlist', function(data) {
 					playlistPlaceholder.innerHTML = playlistTemplate(data);
 					playlist = data.songs;
@@ -103,6 +108,7 @@
 				var searchAlbums = function(query) {
 					$.ajax({
 						url : 'https://api.spotify.com/v1/search',
+						headers : {'Authorization' : 'Bearer ' + authCode} ,
 						data : {
 							q : query,
 							type : 'track'
@@ -151,20 +157,11 @@
 					for (var i = 0; i < classname.length; i++) {
 						classname[i].addEventListener('click', function() {
 							if (voted.indexOf(this.getAttribute('songid')) >= 0) {
-
 							} else {
-
 								voted.push(this.getAttribute('songid'))
 								document.cookie = "votedsongs=" + JSON.stringify(voted);
-								$.ajax({
-									method : "POST",
-									url : '/host/' + window.location.href.replace(/.*\//, '') + '?songid=' + this.getAttribute('songid') + '&song=' + this.getAttribute('songname') + '&artist=' + this.getAttribute('songartist'),
-									success : function(response) {
-										console.log(response);
-
-									}
-								});
-
+                                socket.emit('addSong', { room: window.location.href.replace(/.*\//, ''), message: this.getAttribute('songid'),
+                                    song: this.getAttribute('songname') , artist: this.getAttribute('songartist')});
 							}
 						});
 					};

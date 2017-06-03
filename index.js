@@ -3,8 +3,8 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var redis = require('redis').createClient;
 var adapter = require('socket.io-redis');
-var pub = redis(8529, "ec2-54-227-252-69.compute-1.amazonaws.com", { auth_pass: "p76ntnifvt971g3nfh5ii7ftoup" });
-var sub = redis(8529, "ec2-54-227-252-69.compute-1.amazonaws.com", { return_buffers: true, auth_pass: "p76ntnifvt971g3nfh5ii7ftoup" });
+var pub = redis(10749, "ec2-54-243-224-12.compute-1.amazonaws.com", { auth_pass: "padopvk9fb3rg4ab98de38oc1m7" });
+var sub = redis(10749, "ec2-54-243-224-12.compute-1.amazonaws.com", { return_buffers: true, auth_pass: "padopvk9fb3rg4ab98de38oc1m7" });
 io.adapter(adapter({ pubClient: pub, subClient: sub }));
 var express = require('express');
 var request = require('request'); // "Request" library
@@ -14,7 +14,7 @@ app.use(express.static('public'));
 var client_id = 'd3bfb36d744c491db757c2819dac73eb'; // Your client id
 var client_secret = 'f27f1a4a55404be99e6beb153c54278b'; // Your client secret
 var redirect_uri = (process.env.REDIRECT_URI || 'http://localhost:8888/callback'); // Your
-																					// redirect
+var authCode = null;																					// redirect
 																					// uri
 // var redirect_uri = 'https://ancient-tor-6266.herokuapp.com/callback'; // Your
 // redirect uri
@@ -27,38 +27,39 @@ app.get('/client/:room', function(req, res){
 
 
 io.sockets.on('connection', function(socket){
-    socket.on('subscribe', function(room) { 
-        console.log('joining room', room);
-        socket.join(room); 
+
+    socket.on('subscribe', function(room) {
+        socket.join(room);
+        var authOptions = {
+        		url : 'https://accounts.spotify.com/api/token',
+        		headers : {
+        			'Authorization' : 'Basic ' + 'ZDNiZmIzNmQ3NDRjNDkxZGI3NTdjMjgxOWRhYzczZWI6ZjI3ZjFhNGE1NTQwNGJlOTllNmJlYjE1M2M1NDI3OGI='
+        		},
+        		form : {
+                	grant_type: 'client_credentials'
+                },
+                json : true
+        	};
+        	request.post(authOptions, function(error, response, body) {
+        	    authCode = body.access_token;
+        	            console.log( authCode);
+        		io.sockets.in(room).emit('token', authCode);
+        	});
         io.sockets.in(room).emit('fetchplaylist');
-     
     });
-    
+
+    socket.on('addSong', function(data){
+        console.log(data);
+
+        io.sockets.in(data.room).emit('message', { room: data.room, message: data.message, song: data.song, artist: data.artist });
+     });
+
     socket.on('sendplaylist', function(data){
   	 io.sockets.in(data.room).emit('playlist', data);
   	  console.log(data);
     });
-    
-//    socket.on('like', function(data){
-//     	 io.sockets.in("1217495691").emit('like', data);
-//     	//  console.log(data);
-//       });
-//    
-//    socket.on('hate', function(data){
-//    	 io.sockets.in("1217495691").emit('hate', data);
-//    //	socket.emit('hate', data);
-//    	  console.log(data);
-//      });
-    socket.on('send', function(data) {
-        console.log('sending message');
-        socket.broadcast.emit('new message', {
-            username: socket.username,
-            message: data
-          });
-    
 });
-    
-});
+
 /**
  * Generates a random string containing numbers and letters
  * 
@@ -66,163 +67,6 @@ io.sockets.on('connection', function(socket){
  *            length The length of the string
  * @return {string} The generated string
  */
-var generateRandomString = function(length) {
-	var text = '';
-	var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-	for (var i = 0; i < length; i++) {
-		text += possible.charAt(Math.floor(Math.random() * possible.length));
-	}
-	return text;
-};
-
-var stateKey = 'spotify_auth_state';
-
-app.get('/login', function(req, res) {
-	var state = generateRandomString(16);
-	res.cookie(stateKey, state);
-					// your application requests authorization
-	var scopes = 'user-read-email playlist-read-private user-read-private playlist-modify-public';
-	res.redirect('https://accounts.spotify.com/authorize'
-				+ '?response_type=code'
-				+ '&client_id='
-				+ client_id
-				+ (scopes ? '&scope='
-					+ 'playlist-read-private%20playlist-modify%20playlist-modify-private' : '')
-				+ '&redirect_uri='
-				+ encodeURIComponent(redirect_uri)
-				+ '&state=' + state);
-				});
-
-app.get('/getplaylists', function(req, res) {
-	var authOptions = {
-		url : 'https://api.spotify.com/v1/users/' + req.param('userid')
-				+ '/playlists',
-		headers : {
-			'Authorization' : 'Bearer ' + req.param('accesstoken')
-		},
-		json : true
-	};
-	request.get(authOptions, function(error, response, body) {
-		if (!error && response.statusCode === 200) {
-			var array = [];
-
-			for (i = 0; i < body.items.length; i++) {
-				var playlist = new Object(); // or var map = {};
-				playlist['playlistname'] = body.items[i].name;
-				playlist['playlistid'] = body.items[i].id;
-				array.push(playlist);
-			}
-			;
-			res.send(array);
-		} else {
-			res.send('not valid');
-		}
-	});
-
-});
-app.post('/addtoplaylist', function(req, res) {
-	var authOptions = {
-		url : 'https://api.spotify.com/v1/users/' + req.param('userid')
-				+ '/playlists/' + req.param('selectedplaylistid')
-				+ '/tracks?uris=spotify%3Atrack%3A' + req.param('song'),
-		headers : {
-			'Authorization' : 'Bearer ' + req.param('accesstoken')
-		},
-		json : true
-	};
-
-	request.post(authOptions, function(error, response, body) {
-		// console.log(body);
-		if (!error && response.statusCode === 201) {
-
-			var access_token = body
-			console.log(response.statusCode);
-			res.sendStatus(response.statusCode);
-		} else {
-			res.send('not valid');
-		}
-	});
-});
-app
-		.get(
-				'/callback',
-				function(req, res) {
-
-					// your application requests refresh and access tokens
-					// after checking the state parameter
-
-					var code = req.query.code || null;
-					var state = req.query.state || null;
-					var storedState = req.cookies ? req.cookies[stateKey]
-							: null;
-					if (state === null || state !== storedState) {
-						res.redirect('/#' + querystring.stringify({
-							error : 'state_mismatch'
-						}));
-					} else {
-						res.clearCookie(stateKey);
-						var authOptions = {
-							url : 'https://accounts.spotify.com/api/token',
-							form : {
-								code : code,
-								redirect_uri : redirect_uri,
-								grant_type : 'authorization_code'
-							},
-							headers : {
-								'Authorization' : 'Basic '
-										+ (new Buffer(client_id + ':'
-												+ client_secret)
-												.toString('base64'))
-							},
-							json : true
-						};
-
-						request
-								.post(
-										authOptions,
-										function(error, response, body) {
-											if (!error
-													&& response.statusCode === 200) {
-
-												var access_token = body.access_token, refresh_token = body.refresh_token;
-
-												var options = {
-													url : 'https://api.spotify.com/v1/me',
-													headers : {
-														'Authorization' : 'Bearer '
-																+ access_token
-													},
-													json : true
-												};
-
-												// use the access token to
-												// access the Spotify Web API
-												request.get(options, function(
-														error, response, body) {
-												});
-
-												// we can also pass the token to
-												// the browser to make requests
-												// from there
-												res
-														.redirect('/#'
-																+ querystring
-																		.stringify({
-																			access_token : access_token,
-																			refresh_token : refresh_token
-																		}));
-											} else {
-												res
-														.redirect('/#'
-																+ querystring
-																		.stringify({
-																			error : 'invalid_token'
-																		}));
-											}
-										});
-					}
-				});
 
 app.get('/refresh_token', function(req, res) {
 
@@ -253,17 +97,25 @@ app.get('/refresh_token', function(req, res) {
 });
 
 
-app.post('/host/:room/', function(req, res) {
-	
-    var room = req.params.room
-        message = req.param('songid')
-        song = req.param('song')
-        artist = req.param('artist');
-    console.log(room);
-    console.log(song + " " + artist);
-    io.sockets.in(room).emit('message', { room: room, message: message, song: song, artist: artist });
-   
-    res.end('message sent');
+app.post('/getAuthToken', function(req, res) {
+	var authOptions = {
+		url : 'https://accounts.spotify.com/api/token',
+		headers : {
+			'Authorization' : 'Basic ' + 'ZDNiZmIzNmQ3NDRjNDkxZGI3NTdjMjgxOWRhYzczZWI6ZjI3ZjFhNGE1NTQwNGJlOTllNmJlYjE1M2M1NDI3OGI='
+		},
+		form : {
+        	grant_type: 'client_credentials'
+        },
+        json : true
+	};
+	request.post(authOptions, function(error, response, body) {
+		console.log(body);
+		if (!error && response.statusCode === 200) {
+			res.send(body);
+		} else {
+			res.send('not valid');
+		}
+	});
 });
 
 http.listen(app.get('port'), function() {
