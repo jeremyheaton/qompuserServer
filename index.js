@@ -3,8 +3,8 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var redis = require('redis').createClient;
 var adapter = require('socket.io-redis');
-var pub = redis(10749, "ec2-54-243-224-12.compute-1.amazonaws.com", { auth_pass: "padopvk9fb3rg4ab98de38oc1m7" });
-var sub = redis(10749, "ec2-54-243-224-12.compute-1.amazonaws.com", { return_buffers: true, auth_pass: "padopvk9fb3rg4ab98de38oc1m7" });
+var pub = redis(7779, "ec2-54-225-248-13.compute-1.amazonaws.com", { auth_pass: "pcnht69peu3a041uv99dqd4qdti" });
+var sub = redis(7779, "ec2-54-225-248-13.compute-1.amazonaws.com", { return_buffers: true, auth_pass: "pcnht69peu3a041uv99dqd4qdti" });
 io.adapter(adapter({ pubClient: pub, subClient: sub }));
 var express = require('express');
 var request = require('request'); // "Request" library
@@ -15,7 +15,6 @@ var client_id = 'd3bfb36d744c491db757c2819dac73eb'; // Your client id
 var client_secret = 'f27f1a4a55404be99e6beb153c54278b'; // Your client secret
 var redirect_uri = (process.env.REDIRECT_URI || 'http://localhost:8888/callback'); // Your
 var authCode = null;																					// redirect
-																					// uri
 // var redirect_uri = 'https://ancient-tor-6266.herokuapp.com/callback'; // Your
 // redirect uri
 
@@ -59,14 +58,6 @@ io.sockets.on('connection', function(socket){
   	  console.log(data);
     });
 });
-
-/**
- * Generates a random string containing numbers and letters
- * 
- * @param {number}
- *            length The length of the string
- * @return {string} The generated string
- */
 
 app.get('/refresh_token', function(req, res) {
 
