@@ -39,23 +39,21 @@ io.sockets.on('connection', function(socket){
                 },
                 json : true
         	};
-        	request.post(authOptions, function(error, response, body) {
+        if(authCode == null){
+            request.post(authOptions, function(error, response, body) {
         	    authCode = body.access_token;
-        	            console.log( authCode);
-        		io.sockets.in(room).emit('token', authCode);
         	});
+        }
+        io.sockets.in(room).emit('token', authCode);
         io.sockets.in(room).emit('fetchplaylist');
     });
 
     socket.on('addSong', function(data){
-        console.log(data);
-
         io.sockets.in(data.room).emit('message', { room: data.room, message: data.message, song: data.song, artist: data.artist });
      });
 
     socket.on('sendplaylist', function(data){
   	 io.sockets.in(data.room).emit('playlist', data);
-  	  console.log(data);
     });
 });
 
@@ -84,28 +82,6 @@ app.get('/refresh_token', function(req, res) {
 			res.send({
 				'access_token' : access_token
 			});
-		}
-	});
-});
-
-
-app.post('/getAuthToken', function(req, res) {
-	var authOptions = {
-		url : 'https://accounts.spotify.com/api/token',
-		headers : {
-			'Authorization' : 'Basic ' + 'ZDNiZmIzNmQ3NDRjNDkxZGI3NTdjMjgxOWRhYzczZWI6ZjI3ZjFhNGE1NTQwNGJlOTllNmJlYjE1M2M1NDI3OGI='
-		},
-		form : {
-        	grant_type: 'client_credentials'
-        },
-        json : true
-	};
-	request.post(authOptions, function(error, response, body) {
-		console.log(body);
-		if (!error && response.statusCode === 200) {
-			res.send(body);
-		} else {
-			res.send('not valid');
 		}
 	});
 });
