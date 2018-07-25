@@ -3,8 +3,11 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var redis = require('redis').createClient;
 var adapter = require('socket.io-redis');
-var pub = redis(process.env.HEROKU_REDIS_CRIMSON_URL);
-var sub = redis(process.env.HEROKU_REDIS_CRIMSON_URL);
+var pub = redis(7809, "ec2-18-204-191-194.compute-1.amazonaws.com", {auth_pass: "p694b579e54cc038e09d6ecd68db881fe7fd4845edc459ac5bdd377640000bb16"});
+var sub = redis(7809, "ec2-18-204-191-194.compute-1.amazonaws.com", {
+    return_buffers: true,
+    auth_pass: "p694b579e54cc038e09d6ecd68db881fe7fd4845edc459ac5bdd377640000bb16"
+});
 io.adapter(adapter({pubClient: pub, subClient: sub}));
 var express = require('express');
 var request = require('request'); // "Request" library
