@@ -29,10 +29,6 @@ app.get('/client/:room', function (req, res) {
 
 
 io.sockets.on('connection', function (socket) {
-    socket.on('sendToken', function (authCode) {
-        console.log(authCode);
-        io.sockets.in(room).emit('sendToken', authCode);
-    });
     socket.on('subscribe', function (room) {
         socket.join(room);
         var authOptions = {
@@ -50,7 +46,14 @@ io.sockets.on('connection', function (socket) {
                 authCode = body.access_token;
             });
         }
+
+        socket.on('sendToken', function (authCode) {
+            console.log(authCode);
+            io.sockets.in(room).emit('sendToken', authCode);
+        });
+        
         io.sockets.in(room).emit('fetchToken');
+
         console.log(room + ': connected');
         io.sockets.in(room).emit('fetchplaylist');
     });
