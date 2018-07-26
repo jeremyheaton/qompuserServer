@@ -51,7 +51,7 @@ io.sockets.on('connection', function (socket) {
             console.log(authCode);
             io.sockets.in(room).emit('sendToken', authCode);
         });
-        
+
         io.sockets.in(room).emit('fetchToken');
 
         console.log(room + ': connected');
