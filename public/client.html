@@ -92,7 +92,7 @@
 					socket.emit('subscribe', window.location.href.replace(/.*\//, ''));
 				});
 
-				socket.on('token', function(data) {
+				socket.on('sendToken', function(data) {
 				authCode = data;
 				});
 
