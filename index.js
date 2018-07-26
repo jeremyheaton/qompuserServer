@@ -46,8 +46,11 @@ io.sockets.on('connection', function (socket) {
                 authCode = body.access_token;
             });
         }
-        io.sockets.in(room).emit('token', authCode);
-        console.log(room + ': connected')
+        io.sockets.in(room).emit('fetchToken');
+        socket.on('sendToken', function (authCode) {
+            io.sockets.in(room).emit('sendToken', authCode);
+        });
+        console.log(room + ': connected');
         io.sockets.in(room).emit('fetchplaylist');
     });
 
