@@ -31,21 +31,6 @@ app.get('/client/:room', function (req, res) {
 io.sockets.on('connection', function (socket) {
     socket.on('subscribe', function (room) {
         socket.join(room);
-        var authOptions = {
-            url: 'https://accounts.spotify.com/api/token',
-            headers: {
-                'Authorization': 'Basic ' + 'ZDNiZmIzNmQ3NDRjNDkxZGI3NTdjMjgxOWRhYzczZWI6ZjI3ZjFhNGE1NTQwNGJlOTllNmJlYjE1M2M1NDI3OGI='
-            },
-            form: {
-                grant_type: 'client_credentials'
-            },
-            json: true
-        };
-        if (authCode == null) {
-            request.post(authOptions, function (error, response, body) {
-                authCode = body.access_token;
-            });
-        }
 
         socket.on('sendToken', function (authCode) {
             console.log(authCode);
