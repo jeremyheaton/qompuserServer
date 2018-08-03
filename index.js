@@ -30,6 +30,7 @@ app.get('/client/:room', function (req, res) {
 
 io.sockets.on('connection', function (socket) {
     socket.on('subscribe', function (room) {
+        console.log(room);
         socket.join(room);
 
         socket.on('sendToken', function (authCode) {
