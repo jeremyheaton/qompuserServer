@@ -17,6 +17,9 @@ function App() {
       socket.emit('subscribe', room);
     });
   
+    socket.on('test', (data) => {
+      console.log("testing: " + data);
+    });
     socket.on('sendToken', (data) => {
         console.log(data);
         setAuthCode(data);

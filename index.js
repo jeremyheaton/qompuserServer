@@ -33,12 +33,14 @@ io.sockets.on('connection', (socket) => {
     socket.on('subscribe', (data) => {
         console.log(data);
         socket.join(data);
-        io.sockets.in(data).emit('fetchToken');
+        io.sockets.in(data).emit('fetchtoken');
         io.sockets.in(data).emit('fetchplaylist');
+        io.sockets.in(data).emit('test');
+
     });
-    socket.on('sendToken', (room) => {
+    socket.on('sendtoken', (room) => {
         console.log(room);
-        io.sockets.in(room).emit('sendToken', room);
+        io.sockets.in(room).emit('sendtoken', room);
     });
 
     socket.on('addSong', (data) => {
@@ -52,6 +54,7 @@ io.sockets.on('connection', (socket) => {
     });
 
     socket.on('sendplaylist', (data) => {
+        console.log(data);
         io.sockets.in(data.room).emit('playlist', data);
     });
 });
