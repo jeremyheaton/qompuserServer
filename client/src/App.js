@@ -9,7 +9,7 @@ import { Col, Row, Container } from 'react-bootstrap';
 
 function App() {
 
-  const [socket, setSocket] = useState(socketIOClient("http://localhost:9005"));
+  const [socket, setSocket] = useState(socketIOClient("https://ancient-tor-6266.herokuapp.com/"));
   let currentVotes = sessionStorage.getItem('votes');
   const [selectedSongs, setSelectedSongs] = useState( currentVotes ? JSON.parse(currentVotes) : {});
   const [playlist, setPlayList] = useState([]);
