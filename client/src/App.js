@@ -13,7 +13,7 @@ function App() {
   
   useEffect(() => {
     socket.on('connect',  () => {
-      console.log("connected");
+      console.log(window.location.href.replace(/.*\//, ''));
       socket.emit('subscribe', window.location.href.replace(/.*\//, ''));
     });
   
