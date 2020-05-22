@@ -10,11 +10,12 @@ function App() {
   const [socket, setSocket] = useState(socketIOClient("https://ancient-tor-6266.herokuapp.com/"));
   const [playlist, setPlayList] = useState({});
   const [authCode, setAuthCode] = useState({});
+  const [room, setRoom] = useState(window.location.href.replace(/.*\//, ''));
   
   useEffect(() => {
     socket.on('connect',  () => {
       console.log(window.location.href.replace(/.*\//, ''));
-      socket.emit('subscribe', window.location.href.replace(/.*\//, ''));
+      socket.emit('subscribe', room);
     });
   
     socket.on('sendToken', (data) => {
