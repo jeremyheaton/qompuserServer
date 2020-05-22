@@ -1,41 +1,79 @@
-import React,{ useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import './components/search'
 import socketIOClient from 'socket.io-client';
 import Search from './components/search';
+import PlayList from './components/playlist'
+import { Col, Row, Container } from 'react-bootstrap';
 
 
 function App() {
 
   const [socket, setSocket] = useState(socketIOClient("http://localhost:9005"));
-  const [playlist, setPlayList] = useState({});
+  let currentVotes = sessionStorage.getItem('votes');
+  const [selectedSongs, setSelectedSongs] = useState( currentVotes ? JSON.parse(currentVotes) : {});
+  const [playlist, setPlayList] = useState([]);
   const [authCode, setAuthCode] = useState({});
   const [room, setRoom] = useState(window.location.href.replace(/.*\//, ''));
-  
+
   useEffect(() => {
-    socket.on('connect',  () => {
+    let set = new Set();
+    socket.on('connect', () => {
       socket.emit('subscribe', room);
     });
-  
-    socket.on('test', (data) => {
-      console.log("testing: " + data);
-    });
+
     socket.on('sendtoken', (data) => {
-        console.log(data);
-        setAuthCode(data);
+      console.log(data);
+      setAuthCode(data);
     });
-    
+
     socket.on('playlist', (data) => {
       console.log(data);
-        setPlayList(data)
+      setPlayList(data.songs);
+      set = new Set();
+      data.songs.map(song => {
+        set.add(song.id);
+      })
+
+      for(let song of Object.keys(selectedSongs)) {
+        if(!set.has(song)) {
+          delete selectedSongs[song];
+        }
+      }
+      setSelectedSongs(selectedSongs);
+      sessionStorage.setItem('votes', JSON.stringify(selectedSongs));
     });
-   },[]);
+  }, []);
+
+  const sendSong = (message, song, artist) => {
+    console.log(message in selectedSongs);
+    console.log(!(message in selectedSongs));
+
+    if(!(message in selectedSongs)) {
+      socket.emit('addSong', {
+        room,
+        message,
+        song,
+        artist
+      });
+      selectedSongs[message] = message;
+      sessionStorage.setItem('votes', JSON.stringify(selectedSongs));
+      setSelectedSongs(selectedSongs);
+
+    }
+  }
 
   return (
-    <div className="App">
-      {console.log(authCode)}
-      <Search authCode={authCode} />
-    </div>
+    <Container className="App">
+      <Row>
+        <Col>
+          <Search authCode={authCode} selectSong={sendSong} />
+        </Col>
+        <Col>
+          <PlayList playlist={playlist} />
+        </Col>
+      </Row>
+    </Container>
   );
 }
 
