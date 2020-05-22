@@ -1,6 +1,6 @@
-var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+const app = require('express')();
+const server = require('http').Server(app);
+const io = require('socket.io')(server);
 var redis = require('redis').createClient;
 var adapter = require('socket.io-redis');
 var pub = redis(12839, "ec2-54-160-82-23.compute-1.amazonaws.com", {
@@ -11,7 +11,6 @@ var sub = redis(12839, "ec2-54-160-82-23.compute-1.amazonaws.com", {
 });
 
 io.adapter(adapter({pubClient: pub, subClient: sub}));
-var express = require('express');
 app.set('port', (process.env.PORT || 8888));
 app.use(express.static('public'));
 // app.use(express.static(path.join(__dirname, 'client/build')));
