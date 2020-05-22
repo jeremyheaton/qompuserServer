@@ -42,7 +42,7 @@ io.sockets.on('connection', (socket) => {
     });
     socket.on('sendtoken', (data) => {
         console.log('send token: ' + data);
-        //io.sockets.in(data.room).emit('sendtoken', data.token);
+        io.sockets.in(data.room).emit('sendtoken', data.token);
     });
 
     socket.on('addSong', (data) => {
