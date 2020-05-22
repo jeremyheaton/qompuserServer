@@ -30,10 +30,9 @@ sub.on("error", function (err) {
 });
 
 io.sockets.on('connection', (socket) => {
-    socket.on('sendToken', (room, authCode) => {
-        console.log(authCode);
+    socket.on('sendToken', (room) => {
         console.log(room);
-        io.sockets.in(room).emit('sendToken', authCode);
+        io.sockets.in(room).emit('sendToken', room);
     });
 
     socket.on('subscribe', (data) => {
