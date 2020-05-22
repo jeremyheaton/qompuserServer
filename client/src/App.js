@@ -7,7 +7,7 @@ import Search from './components/search';
 
 function App() {
 
-  const [socket, setSocket] = useState(socketIOClient("https://ancient-tor-6266.herokuapp.com/"));
+  const [socket, setSocket] = useState(socketIOClient("http://localhost:9005/"));
   const [playlist, setPlayList] = useState({});
   const [authCode, setAuthCode] = useState({});
   const [room, setRoom] = useState(window.location.href.replace(/.*\//, ''));
