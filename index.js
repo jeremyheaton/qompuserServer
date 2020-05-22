@@ -29,16 +29,16 @@ sub.on("error", function (err) {
 });
 
 io.sockets.on('connection', (socket) => {
-    socket.on('sendToken', (room) => {
-        console.log(room);
-        io.sockets.in(room).emit('sendToken', room);
-    });
 
     socket.on('subscribe', (data) => {
         console.log(data);
         socket.join(data);
         io.sockets.in(data).emit('fetchToken');
         io.sockets.in(data).emit('fetchplaylist');
+    });
+    socket.on('sendToken', (room) => {
+        console.log(room);
+        io.sockets.in(room).emit('sendToken', room);
     });
 
     socket.on('addSong', (data) => {

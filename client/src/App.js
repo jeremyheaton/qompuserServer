@@ -7,14 +7,13 @@ import Search from './components/search';
 
 function App() {
 
-  const [socket, setSocket] = useState(socketIOClient("http://localhost:9005/"));
+  const [socket, setSocket] = useState(socketIOClient("http://localhost:9005"));
   const [playlist, setPlayList] = useState({});
   const [authCode, setAuthCode] = useState({});
   const [room, setRoom] = useState(window.location.href.replace(/.*\//, ''));
   
   useEffect(() => {
     socket.on('connect',  () => {
-      console.log(window.location.href.replace(/.*\//, ''));
       socket.emit('subscribe', room);
     });
   
@@ -24,9 +23,10 @@ function App() {
     });
     
     socket.on('playlist', (data) => {
+      console.log(data);
         setPlayList(data)
     });
-   });
+   },[]);
 
   return (
     <div className="App">
