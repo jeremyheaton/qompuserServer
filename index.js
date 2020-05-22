@@ -31,15 +31,15 @@ sub.on("error", function (err) {
 io.sockets.on('connection', (socket) => {
 
     socket.on('subscribe', (data) => {
-        console.log(data);
+        console.log("subscribed:" + data);
         socket.join(data);
         io.sockets.in(data).emit('fetchtoken');
         io.sockets.in(data).emit('fetchplaylist');
-        io.sockets.in(data).emit('test');
+        io.sockets.in(data).emit('test', 'hi');
 
     });
     socket.on('sendtoken', (room) => {
-        console.log(room);
+        console.log('send token: ' + room);
         io.sockets.in(room).emit('sendtoken', room);
     });
 
