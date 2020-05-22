@@ -5,6 +5,8 @@ const io = require('socket.io')(server);
 var redis = require('redis').createClient;
 var adapter = require('socket.io-redis');
 var pub = redis(12839, "ec2-54-160-82-23.compute-1.amazonaws.com", {
+    detect_buffers: true,
+    return_buffers: false,
     auth_pass: "p694b579e54cc038e09d6ecd68db881fe7fd4845edc459ac5bdd377640000bb16"});
 var sub = redis(12839, "ec2-54-160-82-23.compute-1.amazonaws.com", {
     return_buffers: true,
@@ -40,7 +42,7 @@ io.sockets.on('connection', (socket) => {
     });
     socket.on('sendtoken', (data) => {
         console.log('send token: ' + data);
-        io.sockets.in(data.room).emit('sendtoken', data.token);
+        //io.sockets.in(data.room).emit('sendtoken', data.token);
     });
 
     socket.on('addSong', (data) => {
