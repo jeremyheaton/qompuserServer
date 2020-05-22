@@ -17,12 +17,15 @@ var sub = redis(12839, "ec2-54-160-82-23.compute-1.amazonaws.com", {
 
 io.adapter(adapter({ pubClient: pub, subClient: sub }));
 app.set('port', (process.env.PORT || 8888));
-app.use(express.static('public'));
+// Serve the static files from the React app
 app.use(express.static(path.join(__dirname, 'client/build')));
 
+// An api endpoint that returns a short list of items
 app.get('/client/:room', (req, res) => {
-    res.sendFile(path.join(__dirname + '/client/build/index.html'));
+    res.sendFile(path.join(__dirname+'/client/build/index.html'));
+
 });
+
 pub.on("error", function (err) {
     console.log("Error " + err);
 });
