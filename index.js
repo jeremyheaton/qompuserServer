@@ -1,4 +1,5 @@
 const app = require('express')();
+const express = require('express');
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 var redis = require('redis').createClient;
@@ -58,6 +59,6 @@ io.sockets.on('connection', (socket) => {
     });
 });
 
-http.listen(app.get('port'), function () {
+server.listen(app.get('port'), function () {
     console.log('Node app is running on port', app.get('port'));
 });
