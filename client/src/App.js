@@ -20,7 +20,7 @@ function App() {
     socket.on('test', (data) => {
       console.log("testing: " + data);
     });
-    socket.on('sendToken', (data) => {
+    socket.on('sendtoken', (data) => {
         console.log(data);
         setAuthCode(data);
     });

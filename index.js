@@ -41,7 +41,7 @@ io.sockets.on('connection', (socket) => {
 
     });
     socket.on('sendtoken', (data) => {
-        console.log('send token: ' + data.room);
+        console.log('get rooms' +  io.sockets.adapter.rooms);
         io.sockets.in(data.room).emit('sendtoken', data.token);
     });
 
