@@ -12,7 +12,7 @@ function App() {
   const [authCode, setAuthCode] = useState({});
   
   useEffect(() => {
-    socket.on('connect', function () {
+    socket.on('connect',  () => {
       console.log("connected");
       socket.emit('subscribe', window.location.href.replace(/.*\//, ''));
     });
@@ -25,7 +25,7 @@ function App() {
     socket.on('playlist', (data) => {
         setPlayList(data)
     });
-   }, []);
+   });
 
   return (
     <div className="App">
