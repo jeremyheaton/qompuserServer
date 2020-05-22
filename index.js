@@ -5,6 +5,7 @@ const io = require('socket.io')(server);
 const redis = require('redis').createClient;
 const adapter = require('socket.io-redis');
 const path = require('path');
+const { RateLimiterRedis } = require('rate-limiter-flexible');
 const pub = redis(process.env.REDIS_PORT, process.env.REDIS_URL, {
     detect_buffers: true,
     return_buffers: false,
@@ -15,10 +16,16 @@ const sub = redis(process.env.REDIS_PORT, process.env.REDIS_URL, {
     auth_pass: process.env.REDIS_PASSWORD
 });
 const redisClient = redis(process.env.REDIS_PORT, process.env.REDIS_URL, {
-    detect_buffers: true,
-    return_buffers: false,
     auth_pass: process.env.REDIS_PASSWORD
 });
+
+
+const opts = {
+    // Basic options
+    storeClient: redisClient,
+    points: 5, // 5 points
+    duration: 1, // per second
+  };
 
 io.adapter(adapter({ pubClient: pub, subClient: sub }));
 app.set('port', (process.env.PORT || 8888));
@@ -41,34 +48,48 @@ sub.on("error", function (err) {
 
 io.sockets.on('connection', (socket) => {
 
-    socket.on('subscribe', (room) => {
-        console.log("subscribed:" + room);
-        socket.join(room);
-        socket.emit('playlist', redis.get(room));
-        io.sockets.in(room).emit('fetchtoken');
+    socket.on('subscribe', async (room) => {
+        try {
+            await rateLimiter.consume(socket.handshake.address); 
+            console.log("subscribed:" + room);
+            socket.join(room);
+            socket.emit('playlist', redis.get(room));
+            io.sockets.in(room).emit('fetchtoken');
+        } catch(error) {
+
+        }
     });
 
-    socket.on('sendtoken', (data) => {
-        console.log('get rooms' + io.sockets.adapter.rooms);
-        io.sockets.in(data.room).emit('sendtoken', data.token);
+    socket.on('sendtoken', async (data) => {
+        try {
+            await rateLimiter.consume(socket.handshake.address); 
+            console.log('get rooms' + io.sockets.adapter.rooms);
+            io.sockets.in(data.room).emit('sendtoken', data.token);
+        } catch(error) {
+
+        }
     });
 
-    socket.on('addSong', (data) => {
-        console.log("attempting to add song");
-        io.sockets.in(data.room).emit('message',
-            { room: data.room, message: data.message, song: data.song, artist: data.artist });
+    socket.on('addSong', async (data) => {
+        try {
+            await rateLimiter.consume(socket.handshake.address); 
+            console.log("attempting to add song");
+            io.sockets.in(data.room).emit('message',
+                { room: data.room, message: data.message, song: data.song, artist: data.artist });
+        } catch(error) {
+            
+        }
     });
 
-    socket.on('songAdded', (data) => {
-        console.log(data);
-        redisClient.set(data.room, data);
-        io.sockets.in(data.room).emit('playlist', data);
-    });
+    socket.on('sendplaylist', async (data) => {
+        try {
+            await rateLimiter.consume(socket.handshake.address); 
+            console.log(data);
+            redisClient.set(data.room, data);
+            io.sockets.in(data.room).emit('playlist', data);
+        } catch(error) {
 
-    socket.on('sendplaylist', (data) => {
-        console.log(data);
-        redisClient.set(data.room, data);
-        io.sockets.in(data.room).emit('playlist', data);
+        }
     });
 });
 
