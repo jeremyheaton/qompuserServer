@@ -4,6 +4,7 @@ var io = require('socket.io')(http);
 var redis = require('redis').createClient;
 var adapter = require('socket.io-redis');
 var pub = redis(12839, "ec2-54-160-82-23.compute-1.amazonaws.com", {
+    return_buffers: true,
     auth_pass: "p694b579e54cc038e09d6ecd68db881fe7fd4845edc459ac5bdd377640000bb16"});
 var sub = redis(12839, "ec2-54-160-82-23.compute-1.amazonaws.com", {
     return_buffers: true,
@@ -30,15 +31,14 @@ sub.on("error", function (err) {
 
 io.sockets.on('connection', (socket) => {
     socket.on('sendToken', (room, authCode) => {
-        console.log(authCode,room);
+        console.log(authCode);
+        console.log(room);
         io.sockets.in(room).emit('sendToken', authCode);
     });
 
     socket.on('subscribe', (data) => {
-        console.log(data);
         socket.join(data);
         io.sockets.in(data).emit('fetchToken');
-        console.log(data + ': connected');
         io.sockets.in(data).emit('fetchplaylist');
     });
 
