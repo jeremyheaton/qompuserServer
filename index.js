@@ -38,9 +38,9 @@ io.sockets.on('connection', (socket) => {
         io.sockets.in(data).emit('test', 'hi');
 
     });
-    socket.on('sendtoken', (room) => {
-        console.log('send token: ' + room);
-        io.sockets.in(room).emit('sendtoken', room);
+    socket.on('sendtoken', (data) => {
+        console.log('send token: ' + data);
+        io.sockets.in(data.room).emit('sendtoken', data.token);
     });
 
     socket.on('addSong', (data) => {
