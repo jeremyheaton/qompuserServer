@@ -25,12 +25,12 @@ app.use(express.static('public'));
 //     res.sendFile(path.join(__dirname+'/client/build/index.html'));
 // });
 
-io.sockets.on('connection', function (socket) {
-    socket.on('subscribe', function (room) {
+io.sockets.on('connection', (socket) => {
+    socket.on('subscribe', (room) => {
         console.log(room);
         socket.join(room);
 
-        socket.on('sendToken', function (authCode) {
+        socket.on('sendToken', (authCode) => {
             console.log(authCode);
             io.sockets.in(room).emit('sendToken', authCode);
         });
@@ -41,17 +41,17 @@ io.sockets.on('connection', function (socket) {
         io.sockets.in(room).emit('fetchplaylist');
     });
 
-    socket.on('addSong', function (data) {
+    socket.on('addSong', (data) => {
         console.log("attempting to add song");
         io.sockets.in(data.room).emit('message',
             {room: data.room, message: data.message, song: data.song, artist: data.artist});
     });
 
-    socket.on('songAdded', function (data) {
+    socket.on('songAdded', (data) => {
         console.log(data);
     });
 
-    socket.on('sendplaylist', function (data) {
+    socket.on('sendplaylist', (data) => {
         io.sockets.in(data.room).emit('playlist', data);
     });
 });
