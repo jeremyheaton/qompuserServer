@@ -5,19 +5,19 @@ const io = require('socket.io')(server);
 const redis = require('redis').createClient;
 const adapter = require('socket.io-redis');
 const path = require('path');
-const pub = redis(12839, "ec2-54-160-82-23.compute-1.amazonaws.com", {
+const pub = redis(process.env.REDIS_PORT, process.env.REDIS_URL, {
     detect_buffers: true,
     return_buffers: false,
-    auth_pass: "p694b579e54cc038e09d6ecd68db881fe7fd4845edc459ac5bdd377640000bb16"
+    auth_pass: process.env.REDIS_PASSWORD
 });
-const sub = redis(12839, "ec2-54-160-82-23.compute-1.amazonaws.com", {
+const sub = redis(process.env.REDIS_PORT, process.env.REDIS_URL, {
     return_buffers: true,
-    auth_pass: "p694b579e54cc038e09d6ecd68db881fe7fd4845edc459ac5bdd377640000bb16"
+    auth_pass: process.env.REDIS_PASSWORD
 });
-const redisClient = redis(12839, "ec2-54-160-82-23.compute-1.amazonaws.com", {
+const redisClient = redis(process.env.REDIS_PORT, process.env.REDIS_URL, {
     detect_buffers: true,
     return_buffers: false,
-    auth_pass: "p694b579e54cc038e09d6ecd68db881fe7fd4845edc459ac5bdd377640000bb16"
+    auth_pass: process.env.REDIS_PASSWORD
 });
 
 io.adapter(adapter({ pubClient: pub, subClient: sub }));
