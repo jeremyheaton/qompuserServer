@@ -29,9 +29,9 @@ sub.on("error", function (err) {
 });
 
 io.sockets.on('connection', (socket) => {
-    socket.on('sendToken', (authCode, test) => {
-        console.log(authCode,test);
-        io.sockets.in(authCode).emit('sendToken', authCode);
+    socket.on('sendToken', (room, authCode) => {
+        console.log(authCode,room);
+        io.sockets.in(room).emit('sendToken', authCode);
     });
 
     socket.on('subscribe', (data) => {
