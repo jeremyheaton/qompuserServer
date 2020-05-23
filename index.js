@@ -20,12 +20,11 @@ const redisClient = redis(process.env.REDIS_PORT, process.env.REDIS_URL, {
 });
 
 
-const opts = {
-    // Basic options
+const rateLimiter = new RateLimiterRedis({
     storeClient: redisClient,
-    points: 5, // 5 points
-    duration: 1, // per second
-  };
+    points: 10, // Number of points
+    duration: 1, // Per second
+  });
 
 io.adapter(adapter({ pubClient: pub, subClient: sub }));
 app.set('port', (process.env.PORT || 8888));
@@ -77,7 +76,7 @@ io.sockets.on('connection', (socket) => {
             io.sockets.in(data.room).emit('message',
                 { room: data.room, message: data.message, song: data.song, artist: data.artist });
         } catch(error) {
-            
+
         }
     });
 
