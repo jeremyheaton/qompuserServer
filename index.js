@@ -52,7 +52,7 @@ io.sockets.on('connection', (socket) => {
             await rateLimiter.consume(socket.handshake.address); 
             console.log("subscribed:" + room);
             socket.join(room);
-            socket.emit('playlist', redis.get(room));
+            socket.emit('playlist', redisClient.get(room));
             io.sockets.in(room).emit('fetchtoken');
         } catch(error) {
             console.log(error);
