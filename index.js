@@ -53,7 +53,7 @@ io.sockets.on('connection', (socket) => {
             console.log("subscribed:" + room);
             socket.join(room);
             redisClient.get(room, (error,result) => {
-                console.log("getting cache:" + JSON.parse(data));
+                console.log("getting cache:" + JSON.parse(result));
                 console.log("getting cache error:" + error);
                 if(result) {
                     socket.emit('playlist', result);
