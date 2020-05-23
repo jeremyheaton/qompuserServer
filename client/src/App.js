@@ -28,11 +28,7 @@ function App() {
     });
 
     socket.on('playlist', (data) => {
-      var output = '';
-      for (var property in data) {
-        output += property + ': ' + data[property] + '; ';
-      }
-      console.log(output);
+      console.log(JSON.parse(data));
       setPlayList(data.songs);
       set = new Set();
       data.songs.map(song => {

@@ -6,6 +6,13 @@ const redis = require('redis').createClient;
 const adapter = require('socket.io-redis');
 const path = require('path');
 const { RateLimiterRedis } = require('rate-limiter-flexible');
+const redisClient = redis(12839, "ec2-54-160-82-23.compute-1.amazonaws.com", {
+    auth_pass: "p694b579e54cc038e09d6ecd68db881fe7fd4845edc459ac5bdd377640000bb16"
+});
+
+redisClient.flushdb( function (err, succeeded) {
+    console.log(succeeded); // will be true if successfull
+});
 const pub = redis(process.env.REDIS_PORT, process.env.REDIS_URL, {
     detect_buffers: true,
     return_buffers: false,
@@ -15,9 +22,7 @@ const sub = redis(process.env.REDIS_PORT, process.env.REDIS_URL, {
     return_buffers: true,
     auth_pass: process.env.REDIS_PASSWORD
 });
-const redisClient = redis(process.env.REDIS_PORT, process.env.REDIS_URL, {
-    auth_pass: process.env.REDIS_PASSWORD
-});
+
 
 
 const rateLimiter = new RateLimiterRedis({
@@ -34,7 +39,6 @@ app.use(express.static(path.join(__dirname, 'client/build')));
 // An api endpoint that returns a short list of items
 app.get('/client/:room', (req, res) => {
     res.sendFile(path.join(__dirname+'/client/build/index.html'));
-
 });
 
 pub.on("error", function (err) {
@@ -56,7 +60,7 @@ io.sockets.on('connection', (socket) => {
                 console.log("getting cache:" + JSON.parse(result));
                 console.log("getting cache error:" + error);
                 if(result) {
-                    socket.emit('playlist', result);
+                    socket.emit('playlist', JSON.parse(result));
                 }
             });
             io.sockets.in(room).emit('fetchtoken');
