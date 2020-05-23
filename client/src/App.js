@@ -9,9 +9,9 @@ import { Col, Row, Container } from 'react-bootstrap';
 
 function App() {
 
-  const [socket, setSocket] = useState(socketIOClient(process.env.APP_URL));
+  const [socket, setSocket] = useState(socketIOClient("https://ancient-tor-6266.herokuapp.com/"));
   let currentVotes = sessionStorage.getItem('votes');
-  const [selectedSongs, setSelectedSongs] = useState( currentVotes ? JSON.parse(currentVotes) : {});
+  const [selectedSongs, setSelectedSongs] = useState(currentVotes ? JSON.parse(currentVotes) : {});
   const [playlist, setPlayList] = useState([]);
   const [authCode, setAuthCode] = useState({});
   const [room, setRoom] = useState(window.location.href.replace(/.*\//, ''));
@@ -28,15 +28,19 @@ function App() {
     });
 
     socket.on('playlist', (data) => {
-      console.log(data);
+      var output = '';
+      for (var property in data) {
+        output += property + ': ' + data[property] + '; ';
+      }
+      console.log(output);
       setPlayList(data.songs);
       set = new Set();
       data.songs.map(song => {
         set.add(song.id);
       })
 
-      for(let song of Object.keys(selectedSongs)) {
-        if(!set.has(song)) {
+      for (let song of Object.keys(selectedSongs)) {
+        if (!set.has(song)) {
           delete selectedSongs[song];
         }
       }
@@ -49,7 +53,7 @@ function App() {
     console.log(message in selectedSongs);
     console.log(!(message in selectedSongs));
 
-    if(!(message in selectedSongs)) {
+    if (!(message in selectedSongs)) {
       socket.emit('addSong', {
         room,
         message,

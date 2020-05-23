@@ -53,7 +53,7 @@ io.sockets.on('connection', (socket) => {
             console.log("subscribed:" + room);
             socket.join(room);
             redisClient.get(room, (error,result) => {
-                console.log("getting cache:" + result);
+                console.log("getting cache:" + JSON.parse(data));
                 console.log("getting cache error:" + error);
                 if(result) {
                     socket.emit('playlist', result);
@@ -92,7 +92,7 @@ io.sockets.on('connection', (socket) => {
         try {
             await rateLimiter.consume(socket.handshake.address); 
             console.log("adding cache to:" + data.room);
-            redisClient.set(data.room, data);
+            redisClient.set(data.room, JSON.stringify(data));
             io.sockets.in(data.room).emit('playlist', data);
         } catch(error) {
             console.log(error);
