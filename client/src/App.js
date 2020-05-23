@@ -28,7 +28,6 @@ function App() {
     });
 
     socket.on('playlist', (data) => {
-      console.log(JSON.parse(data));
       setPlayList(data.songs);
       set = new Set();
       data.songs.map(song => {
