@@ -55,7 +55,7 @@ io.sockets.on('connection', (socket) => {
             redisClient.get(room, (error,result) => {
                 console.log("getting cache:" + result);
                 console.log("getting cache error:" + error);
-                if(data) {
+                if(result) {
                     socket.emit('playlist', result);
                 }
             });
