@@ -55,7 +55,7 @@ io.sockets.on('connection', (socket) => {
             socket.emit('playlist', redis.get(room));
             io.sockets.in(room).emit('fetchtoken');
         } catch(error) {
-
+            console.log(error);
         }
     });
 
@@ -65,6 +65,7 @@ io.sockets.on('connection', (socket) => {
             console.log('get rooms' + io.sockets.adapter.rooms);
             io.sockets.in(data.room).emit('sendtoken', data.token);
         } catch(error) {
+            console.log(error);
 
         }
     });
@@ -76,6 +77,7 @@ io.sockets.on('connection', (socket) => {
             io.sockets.in(data.room).emit('message',
                 { room: data.room, message: data.message, song: data.song, artist: data.artist });
         } catch(error) {
+            console.log(error);
 
         }
     });
@@ -87,6 +89,7 @@ io.sockets.on('connection', (socket) => {
             redisClient.set(data.room, data);
             io.sockets.in(data.room).emit('playlist', data);
         } catch(error) {
+            console.log(error);
 
         }
     });
