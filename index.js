@@ -115,4 +115,4 @@ const server = () => {
     });
 }
 
-throng(server);
+throng(process.env.WEB_CONCURRENCY||4, server);
