@@ -14,7 +14,7 @@ const server = () => {
         auth_pass: "p694b579e54cc038e09d6ecd68db881fe7fd4845edc459ac5bdd377640000bb16"
     });
 
-    io.set('transports', ['websocket']);
+//    io.set('transports', ['websocket']);
     redisClient.flushdb(function (err, succeeded) {
         console.log(succeeded); // will be true if successfull
     });
